@@ -1,0 +1,49 @@
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx1560m -XX:+HeapDumpOnOutOfMemoryError" -Dorg.gradle.daemon=false'
+      TERM: dumb
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: gradle dependencies
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      # dependencies
+      - run: echo y | android -s update sdk -u -a -t "tools" # update Android SDK that includes sdkmanager(1)
+      - run: mkdir -p "$ANDROID_HOME"/licenses
+      - run: echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME"/licenses/android-sdk-license
+      - run: echo y | $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "extras;android;m2repository" "extras;google;m2repository"
+      # run tests!
+      - run: gradle checkLicenses
+      - run: gradle generateLicensePage
+      - run: gradle generateLicenseJson<F29>
