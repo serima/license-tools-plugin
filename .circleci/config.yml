@@ -26,7 +26,7 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: ./gradle dependencies
+      - run: ./gradlew dependencies
 
       - save_cache:
           paths:
@@ -39,6 +39,6 @@ jobs:
       - run: echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME"/licenses/android-sdk-license
       - run: echo y | $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "extras;android;m2repository" "extras;google;m2repository"
       # run tests!
-      - run: ./gradle checkLicenses
-      - run: ./gradle generateLicensePage
-      - run: ./gradle generateLicenseJson<F29>
+      - run: ./gradlew checkLicenses
+      - run: ./gradlew generateLicensePage
+      - run: ./gradlew generateLicenseJson
